@@ -5,16 +5,27 @@ import (
 	"net/http"
 
 	"github.com/gabrielfranca42/simple-go-mod/config"
+	"github.com/gabrielfranca42/simple-go-mod/models"
+	"github.com/gorilla/mux"
 )
-
-//funcao principal e por ela e inciadada
-//ponto de entrada da aplicação
 
 func main() {
 
-	dbConnection := config.SetupDataBase()
+	db := config.SetupDataBase()
+	defer db.Close()
 
-	defer dbConnection.Close()
+	_, err := db.Exec(models.CreateTableSQL)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	router := mux.NewRouter()
+
+	router.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message":"api funcionando"}`))
+	}).Methods("GET")
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
