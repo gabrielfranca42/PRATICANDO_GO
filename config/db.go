@@ -23,6 +23,7 @@ func SetupDataBase() sql.DB {
 	dbName := os.Getenv("DB_NAME")
 
 	connectionStr := fmt.Sprintf("host=%s port%s user=%s password=%s dbname%s sslmode=disabe", dbHost, dbPort, dbUser, dbPassword, dbName)
+	fmt.Println(connectionStr)
 
 	dbConnection, err := sql.Open("postgres", connectionStr)
 
