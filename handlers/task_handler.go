@@ -18,6 +18,15 @@ func NewTaskHandler(db *sql.DB) *TaskHandler {
 	return &TaskHandler{DB: db}
 }
 
+func (taskHandler *TaskHandler) CreateTask(write http.ResponseWriter, request *http.Request) {
+	var task models.Task
+	err := json.NewDecoder(request.Body).Decode(&task)
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
 func (taskHandler *TaskHandler) ReadTasks(w http.ResponseWriter, request *http.Request) {
 	rows, err := taskHandler.DB.Query("SELECT * FROM tasks")
 	if err != nil {
@@ -37,21 +46,10 @@ func (taskHandler *TaskHandler) ReadTasks(w http.ResponseWriter, request *http.R
 		}
 
 		tasks = append(tasks, task)
-
 	}
 
 	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
-
-}
-
-func (taskHandler *TaskHandler) CreateTask(write http.ResponseWriter, request *http.Request) {
-	var task models.Task
-	err := json.NewDecoder(request.Body).Decode(&task)
-	if err != nil {
-		http.Error(write, err.Error(), http.StatusBadRequest)
-		return
-	}
 }
 
 func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *http.Request) {
@@ -66,7 +64,6 @@ func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *h
 	if err != nil {
 		http.Error(write, err.Error(), http.StatusInternalServerError)
 		return
-
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -74,8 +71,8 @@ func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *h
 		http.Error(write, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 }
+
 func (taskHandler *TaskHandler) UpdateTask(write http.ResponseWriter, request *http.Request) {
 	_, err := taskHandler.DB.Exec(
 		"UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4",
