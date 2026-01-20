@@ -38,8 +38,6 @@ func (taskHandler *TaskHandler) ReadTasks(w http.ResponseWriter, request *http.R
 
 	}
 
-	tasks = append(tasks, task)
-
 	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
 
