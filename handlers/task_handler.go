@@ -42,3 +42,33 @@ func (taskHandler *TaskHandler) ReadTasks(w http.ResponseWriter, request *http.R
 	json.NewEncoder(w).Encode(tasks)
 
 }
+
+func (taskHandler *TaskHandler) CreateTask(write http.ResponseWriter, request *http.Request) {
+	var task models.Task
+	err := json.NewDecoder(request.Body).Decode(&task)
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *http.Request) {
+	_, err := taskHandler.DB.Exec(
+		"DELETE FROM tasks WHERE id = $1",
+	)
+
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+func (taskHandler *TaskHandler) UpdateTask(write http.ResponseWriter, request *http.Request) {
+	_, err := taskHandler.DB.Exec(
+		"UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4",
+	)
+
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
