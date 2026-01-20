@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gabrielfranca42/simple-go-mod/models"
+	"github.com/gorilla/mux"
 )
 
 type TaskHandler struct {
@@ -53,14 +55,26 @@ func (taskHandler *TaskHandler) CreateTask(write http.ResponseWriter, request *h
 }
 
 func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *http.Request) {
-	_, err := taskHandler.DB.Exec(
-		"DELETE FROM tasks WHERE id = $1",
-	)
-
+	vars := mux.Vars(request)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(write, err.Error(), http.StatusBadRequest)
+		http.Error(write, "Invalid Task ID", http.StatusBadRequest)
 		return
 	}
+
+	result, err := taskHandler.DB.Exec("DELETE FROM tasks WHERE id = $1", id)
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusInternalServerError)
+		return
+
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(write, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 func (taskHandler *TaskHandler) UpdateTask(write http.ResponseWriter, request *http.Request) {
 	_, err := taskHandler.DB.Exec(
