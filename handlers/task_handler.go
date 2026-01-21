@@ -71,6 +71,12 @@ func (taskHandler *TaskHandler) DeleteTask(write http.ResponseWriter, request *h
 		http.Error(write, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	if rowsAffected == 0 {
+		http.Error(write, "No Task Found with this ID", http.StatusNotFound)
+		return
+
+	}
 }
 
 func (taskHandler *TaskHandler) UpdateTask(write http.ResponseWriter, request *http.Request) {
